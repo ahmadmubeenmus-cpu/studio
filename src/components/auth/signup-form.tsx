@@ -70,7 +70,7 @@ export function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isPending} style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? <Loader2 className="animate-spin" /> : "Create Account"}
         </Button>
         <p className="text-center text-sm text-muted-foreground">

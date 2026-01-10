@@ -82,7 +82,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isPending} style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+        <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? <Loader2 className="animate-spin" /> : "Log In"}
         </Button>
 

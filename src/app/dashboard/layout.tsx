@@ -1,9 +1,7 @@
 "use client";
 
-import { useUser } from "@/firebase";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Header from "@/components/shared/header";
+import { useUser } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardLayout({
@@ -12,13 +10,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, isLoading } = useUser();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [user, isLoading, router]);
 
   if (isLoading || !user) {
     return (

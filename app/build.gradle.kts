@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.remotedroid"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -46,13 +46,15 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx-constraintlayout)
+    implementation(libs.androidx.constraintlayout)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     // Lifecycle and ViewModel
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -72,21 +74,20 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-
-    // WorkManager
-    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.work)
     kapt(libs.hilt.work.compiler)
 
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+    
     // WebRTC
     implementation(libs.webrtc)
-
-    // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
 
 kapt {
     correctErrorTypes = true
+}
+
+hilt {
+    enableAggregatingTask = true
 }

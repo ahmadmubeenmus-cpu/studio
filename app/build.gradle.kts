@@ -18,6 +18,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // TODO: This should be stored securely in a local.properties file
+        buildConfigField("String", "WEB_CLIENT_ID", "\"951814716323-eoru030c8toasn7o8ub9jk8hm8119864.apps.googleusercontent.com\"")
     }
 
     buildTypes {
@@ -38,26 +41,29 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx-appcompat)
+    implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
-    // Lifecycle, ViewModel, Navigation
+    // Lifecycle and ViewModel
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     
+    // Splash Screen
+    implementation(libs.androidx.splashscreen)
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
@@ -71,4 +77,9 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

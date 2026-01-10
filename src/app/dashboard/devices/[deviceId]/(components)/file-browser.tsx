@@ -3,10 +3,13 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { File, Download } from "lucide-react";
+import { File, Download, Loader2 } from "lucide-react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection, query, where, getFirestore, orderBy } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export interface DeviceFile {
     id: string;
@@ -34,10 +37,35 @@ function formatBytes(bytes: number, decimals = 2) {
 
 export function FileBrowser({ deviceId }: { deviceId: string }) {
   const firestore = getFirestore();
+  const storage = getStorage();
+  const { toast } = useToast();
+  const [downloading, setDownloading] = useState<string | null>(null);
+
   const filesRef = collection(firestore, "files");
   const filesQuery = query(filesRef, where("deviceId", "==", deviceId), orderBy("uploadedAt", "desc"));
   const [snapshot, loading, error] = useCollection(filesQuery);
   const files = snapshot?.docs.map(doc => ({ id: doc.id, ...doc.data() } as DeviceFile));
+
+  const handleDownload = async (file: DeviceFile) => {
+    setDownloading(file.id);
+    try {
+        const storageRef = ref(storage, file.storagePath);
+        const url = await getDownloadURL(storageRef);
+
+        // This will open the file in a new tab, which triggers a download for most file types.
+        window.open(url, '_blank');
+
+    } catch (error) {
+        console.error("Error getting download URL:", error);
+        toast({
+            variant: "destructive",
+            title: "Download failed",
+            description: "Could not get the file download link. Please try again."
+        });
+    } finally {
+        setDownloading(null);
+    }
+  }
 
   return (
     <Card>
@@ -74,8 +102,12 @@ export function FileBrowser({ deviceId }: { deviceId: string }) {
                     <TableCell className="hidden sm:table-cell text-right text-muted-foreground">{formatBytes(file.size)}</TableCell>
                     <TableCell className="hidden sm:table-cell text-right text-muted-foreground">{new Date(file.uploadedAt.seconds * 1000).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                        <Download className="w-4 h-4" />
+                    <Button variant="ghost" size="icon" onClick={() => handleDownload(file)} disabled={downloading === file.id}>
+                        {downloading === file.id ? (
+                             <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                             <Download className="w-4 h-4" />
+                        )}
                         <span className="sr-only">Download</span>
                     </Button>
                     </TableCell>

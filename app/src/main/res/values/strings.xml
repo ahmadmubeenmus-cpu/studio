@@ -16,4 +16,5 @@
     <string name="location_notification_channel_id" translatable="false">location_channel</string>
     <string name="location_notification_channel_name">Location Updates</string>
     <string name="location_notification_channel_description">Shows a notification when location is being requested.</string>
+    <string name="upload_file">Upload File</string>
 </resources>

@@ -16,7 +16,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"/>
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginTop="64dp"/>
 
     <TextView
         android:id="@+id/textViewUserInfo"
@@ -25,19 +26,32 @@
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/buttonLogout"
+        app:layout_constraintBottom_toTopOf="@id/buttonUploadFile"
         tools:text="Logged in as: user@example.com"
         android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/buttonUploadFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/upload_file"
+        app:layout_constraintTop_toBottomOf="@id/textViewUserInfo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/buttonLogout"
+        android:layout_marginTop="32dp"/>
 
     <Button
         android:id="@+id/buttonLogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/log_out"
-        app:layout_constraintTop_toBottomOf="@id/textViewUserInfo"
+        app:layout_constraintTop_toBottomOf="@id/buttonUploadFile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="32dp"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="64dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

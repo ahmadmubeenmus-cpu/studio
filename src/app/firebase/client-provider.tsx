@@ -1,13 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { createContext, useContext, ReactNode } from "react";
 import { initializeFirebase } from "./config";
-import { LoadingScreen } from "@/components/shared/loading-screen";
-import { Auth, getAuth } from "firebase/auth";
+import { Auth } from "firebase/auth";
 import { FirebaseApp } from "firebase/app";
-import { Firestore, getFirestore } from "firebase/firestore";
+import { Firestore } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 interface FirebaseContextType {
   app: FirebaseApp;
@@ -18,32 +16,13 @@ interface FirebaseContextType {
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
 export function FirebaseClientProvider({ children }: { children: ReactNode }) {
-  const { app, auth } = initializeFirebase();
-  const [user, isLoading] = useAuthState(auth);
-  const router = useRouter();
-  const pathname = usePathname();
+  const { app, auth, firestore } = initializeFirebase();
 
-  useEffect(() => {
-    if (isLoading) return; // Wait until user status is resolved
-
-    const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
-
-    if (!user && !isAuthPage) {
-      router.replace("/login");
-    } else if (user && (isAuthPage || pathname === "/")) {
-      router.replace("/dashboard");
-    }
-  }, [user, isLoading, pathname, router]);
-
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
-  const shouldShowLoading = isLoading || (!user && !isAuthPage) || (user && (isAuthPage || pathname === "/"));
-
-  if (shouldShowLoading) {
-    return <LoadingScreen />;
-  }
-
+  // This provider's sole responsibility is to provide the Firebase instances
+  // to the rest of the application. The routing logic has been moved to the
+  // relevant layouts to prevent race conditions.
   return (
-    <FirebaseContext.Provider value={initializeFirebase()}>
+    <FirebaseContext.Provider value={{ app, auth, firestore }}>
       {children}
     </FirebaseContext.Provider>
   );

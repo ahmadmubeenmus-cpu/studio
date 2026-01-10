@@ -1,7 +1,24 @@
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/app/firebase/client-provider';
 import { LoadingScreen } from "@/components/shared/loading-screen";
 
 export default function RootPage() {
-  // This page will briefly show a loading screen while the client provider
-  // in the root layout determines the correct route based on auth state.
+  const { user, isLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        router.replace('/dashboard');
+      } else {
+        router.replace('/login');
+      }
+    }
+  }, [user, isLoading, router]);
+
+  // Render a loading screen while the redirect is happening
   return <LoadingScreen />;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Source_Code_Pro } from "next/font/google";
-import { FirebaseClientProvider } from "@/firebase/client-provider";
+import { FirebaseClientProvider } from "@/app/firebase/client-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import { cn } from "@/lib/utils";

@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.remotedroid"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.play.services.location)
 
+
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
@@ -79,15 +80,12 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
-    
+
     // WebRTC
     implementation(libs.webrtc)
+
 }
 
 kapt {
     correctErrorTypes = true
-}
-
-hilt {
-    enableAggregatingTask = true
 }

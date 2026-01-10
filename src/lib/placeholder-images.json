@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "map-location",
+      "description": "A static map showing a pin for device location.",
+      "imageUrl": "https://images.unsplash.com/photo-1717343824605-a4a77640d4e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYXAlMjBjaXR5fGVufDB8fHx8MTc2ODA2MjcwOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "map city"
+    },
+    {
+      "id": "app-icon-1",
+      "description": "Generic application icon",
+      "imageUrl": "https://images.unsplash.com/photo-1545231027-637d2f6210f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsb2dvfGVufDB8fHx8MTc2Nzk5Mjg3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "logo"
+    },
+    {
+      "id": "app-icon-2",
+      "description": "Generic application icon",
+      "imageUrl": "https://images.unsplash.com/photo-1620288627223-53302f4e8c74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsb2dvfGVufDB8fHx8MTc2Nzk5Mjg3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "logo"
+    },
+    {
+      "id": "app-icon-3",
+      "description": "Generic application icon",
+      "imageUrl": "https://images.unsplash.com/photo-1496200186974-4293800e2c20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxsb2dvfGVufDB8fHx8MTc2Nzk5Mjg3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "logo"
+    }
+  ]
 }

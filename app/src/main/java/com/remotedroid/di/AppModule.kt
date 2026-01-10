@@ -1,19 +1,26 @@
 package com.remotedroid.di
 
-import android.app.admin.DevicePolicyManager
 import android.content.Context
 import androidx.work.WorkManager
+import com.remotedroid.data.repository.AuthRepository
+import com.remotedroid.data.repository.AuthRepositoryImpl
+import com.remotedroid.data.repository.CommandRepository
+import com.remotedroid.data.repository.CommandRepositoryImpl
+import com.remotedroid.data.repository.DeviceRepository
+import com.remotedroid.data.repository.DeviceRepositoryImpl
+import com.remotedroid.data.repository.FileRepository
+import com.remotedroid.data.repository.FileRepositoryImpl
+import com.remotedroid.data.repository.LocationRepository
+import com.remotedroid.data.repository.LocationRepositoryImpl
+import com.remotedroid.data.repository.NotificationRepository
+import com.remotedroid.data.repository.NotificationRepositoryImpl
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.remotedroid.R
-import com.remotedroid.tools.command.CommandExecutor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,34 +50,72 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGoogleSignInClient(@ApplicationContext context: Context): GoogleSignInClient {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
+    fun provideAuthRepository(
+        auth: FirebaseAuth,
+        firestore: FirebaseFirestore,
+        googleSignInClient: GoogleSignInClient
+    ): AuthRepository {
+        return AuthRepositoryImpl(auth, firestore, googleSignInClient)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDeviceRepository(
+        firestore: FirebaseFirestore,
+        database: FirebaseDatabase
+    ): DeviceRepository {
+        return DeviceRepositoryImpl(firestore, database)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommandRepository(firestore: FirebaseFirestore): CommandRepository {
+        return CommandRepositoryImpl(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationRepository(firestore: FirebaseFirestore): LocationRepository {
+        return LocationRepositoryImpl(firestore)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideFileRepository(
+        storage: FirebaseStorage,
+        firestore: FirebaseFirestore,
+        @ApplicationContext context: Context
+    ): FileRepository {
+        return FileRepositoryImpl(storage, firestore, context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationRepository(firestore: FirebaseFirestore): NotificationRepository {
+        return NotificationRepositoryImpl(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleSignInOptions(): GoogleSignInOptions {
+        return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("951814716323-b8n2c4s5j8m9a7g2h3f5d4e3c2b1a0.apps.googleusercontent.com")
             .requestEmail()
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleSignInClient(
+        @ApplicationContext context: Context,
+        gso: GoogleSignInOptions
+    ): GoogleSignInClient {
         return GoogleSignIn.getClient(context, gso)
     }
 
     @Provides
     @Singleton
-    fun provideDevicePolicyManager(@ApplicationContext context: Context): DevicePolicyManager =
-        context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-
-    @Provides
-    @Singleton
-    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
-        WorkManager.getInstance(context)
-
-    @Provides
-    @Singleton
-    fun provideFusedLocationProviderClient(@ApplicationContext context: Context): FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
-
-    @Provides
-    @Singleton
-    fun provideCommandExecutor(
-        @ApplicationContext context: Context,
-        dpm: DevicePolicyManager,
-        workManager: WorkManager
-    ): CommandExecutor = CommandExecutor(context, dpm, workManager)
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+        return WorkManager.getInstance(context)
+    }
 }

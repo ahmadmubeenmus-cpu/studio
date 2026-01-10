@@ -1,6 +1,37 @@
 
 {
   "entities": {
+    "UserProfile": {
+        "title": "User Profile",
+        "description": "Represents a user's public profile and settings.",
+        "type": "object",
+        "properties": {
+            "uid": {
+                "type": "string",
+                "description": "The UID of the user."
+            },
+            "email": {
+                "type": "string",
+                "format": "email",
+                "description": "The user's email address."
+            },
+            "displayName": {
+                "type": "string",
+                "description": "The user's display name."
+            },
+            "photoURL": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL of the user's profile picture."
+            },
+            "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The timestamp when the user account was created."
+            }
+        },
+        "required": ["uid", "email"]
+    },
     "Device": {
       "title": "Device",
       "description": "Represents a user's registered Android device.",
@@ -57,6 +88,10 @@
       "description": "Represents a file transferred from a device.",
       "type": "object",
       "properties": {
+        "uid": {
+            "type": "string",
+            "description": "The UID of the user who owns the file."
+        },
         "deviceId": {
           "type": "string",
           "description": "The ID of the device this file belongs to."
@@ -83,7 +118,7 @@
           "description": "The timestamp when the file was uploaded."
         }
       },
-      "required": ["deviceId", "name", "size", "type", "storagePath", "uploadedAt"]
+      "required": ["uid", "deviceId", "name", "size", "type", "storagePath", "uploadedAt"]
     },
     "DeviceLocation": {
       "title": "DeviceLocation",
@@ -169,12 +204,45 @@
             }
         },
         "required": ["deviceId", "type", "status", "createdAt"]
+    },
+    "ScreenSession": {
+        "title": "ScreenSession",
+        "description": "Represents a remote screen sharing session.",
+        "type": "object",
+        "properties": {
+            "deviceId": {
+                "type": "string",
+                "description": "The ID of the device being controlled."
+            },
+            "status": {
+                "type": "string",
+                "enum": ["requested", "active", "ended"],
+                "description": "The status of the screen session."
+            },
+            "startedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp when the session started."
+            },
+            "endedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp when the session ended."
+            }
+        },
+        "required": ["deviceId", "status"]
     }
   },
   "auth": {
     "providers": ["Email/Password", "Google"]
   },
   "firestore": {
+    "/users/{userId}": {
+        "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+        },
+        "description": "Stores public user profile information."
+    },
     "/devices/{deviceId}": {
         "schema": {
             "$ref": "#/backend/entities/Device"
@@ -204,6 +272,12 @@
             "$ref": "#/backend/entities/DeviceCommand"
         },
         "description": "Stores commands to be executed on devices."
+    },
+    "/screenSessions/{sessionId}": {
+        "schema": {
+            "$ref": "#/backend/entities/ScreenSession"
+        },
+        "description": "Stores information about screen sharing sessions."
     }
   }
 }

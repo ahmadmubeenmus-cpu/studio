@@ -12,36 +12,53 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
+    
+    function isDeviceOwner(deviceId) {
+        return get(/databases/$(database)/documents/devices/$(deviceId)).data.uid == request.auth.uid;
+    }
+
+    // Users: Can read/write their own document.
+    match /users/{userId} {
+      allow read, update, create: if isSignedIn() && isOwner(userId);
+      allow delete: if false; // Deletion not allowed from client
+    }
 
     // Devices: Users can only read/write their own devices.
     match /devices/{deviceId} {
-      allow read, create, update: if isSignedIn() && isOwner(resource.data.uid);
+      allow read, create, update: if isSignedIn() && isOwner(request.resource.data.uid);
       allow delete: if false; // Deletion not allowed from client
     }
 
     // Files: Users can only read/write files associated with their devices.
-    // This assumes a 'devices' collection exists to verify ownership.
     match /files/{fileId} {
-      allow read, create: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)).data.uid == request.auth.uid;
-      allow update, delete: if false; // Updates and deletes are restricted
+      allow read, create: if isSignedIn() && isDeviceOwner(request.resource.data.deviceId) && isOwner(request.resource.data.uid);
+      allow update, delete: if false; 
     }
 
     // Locations: Users can only read/write locations for their own devices.
     match /locations/{deviceId} {
-       allow read, write: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(deviceId)) && get(/databases/$(database)/documents/devices/$(deviceId)).data.uid == request.auth.uid;
+       allow read, write: if isSignedIn() && isDeviceOwner(deviceId);
     }
 
     // Notifications: Users can only read/write notifications for their own devices.
     match /notifications/{notificationId} {
-      allow read, create: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)).data.uid == request.auth.uid;
+      allow read, create: if isSignedIn() && isDeviceOwner(request.resource.data.deviceId);
       allow update, delete: if false;
     }
     
-    // Commands: Users can only create commands for their own devices.
+    // Commands: Users can create commands for their own devices. Devices can read their own commands.
     match /commands/{commandId} {
-      allow create: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)).data.uid == request.auth.uid;
-      // Reading/updating status might be handled by a Cloud Function.
-      allow read, update: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(resource.data.deviceId)).data.uid == request.auth.uid;
+      // User can create a command for a device they own.
+      allow create: if isSignedIn() && isDeviceOwner(request.resource.data.deviceId);
+      // User or device can read/update the command. Device identity would be handled via a custom token.
+      // For now, we assume only the user who owns the device can read/update.
+      allow read, update: if isSignedIn() && isDeviceOwner(resource.data.deviceId);
+      allow delete: if false;
+    }
+
+    // Screen Sessions: Users can manage sessions for their own devices.
+    match /screenSessions/{sessionId} {
+      allow read, create, update: if isSignedIn() && isDeviceOwner(request.resource.data.deviceId);
       allow delete: if false;
     }
   }

@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">RemoteDroid</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+    <string name="or_continue_with">Or continue with</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="don_t_have_an_account_sign_up">Don\'t have an account? Sign up</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="log_out">Log Out</string>
+</resources>

@@ -17,10 +17,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        // TODO: This should be stored securely in a local.properties file
-        buildConfigField("String", "WEB_CLIENT_ID", "\"951814716323-eoru030c8toasn7o8ub9jk8hm8119864.apps.googleusercontent.com\"")
+        testInstrumentationRunner = "com.remotedroid.HiltTestRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -40,8 +40,13 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        compose = false
         viewBinding = true
-        buildConfig = true
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -51,18 +56,21 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
-    // Lifecycle and ViewModel
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    // Lifecycle
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     
     // Splash Screen
-    implementation(libs.androidx.splashscreen)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -73,13 +81,18 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.database)
     implementation(libs.play.services.auth)
+    implementation(libs.play.services.location)
 
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    kapt(libs.hilt.work.compiler)
+}
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+kapt {
+    correctErrorTypes = true
 }

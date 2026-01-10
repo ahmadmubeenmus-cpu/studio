@@ -9,4 +9,8 @@
     <string name="don_t_have_an_account_sign_up">Don\'t have an account? Sign up</string>
     <string name="dashboard">Dashboard</string>
     <string name="log_out">Log Out</string>
+    <string name="device_admin_description">Required to remotely lock or wipe your device.</string>
+    <string name="notification_channel_id" translatable="false">remote_commands_channel</string>
+    <string name="notification_channel_name">Remote Commands</string>
+    <string name="notification_channel_description">Notifications for remote commands executed on this device.</string>
 </resources>

@@ -34,29 +34,35 @@ export const onCommandCreate = functions.firestore
         functions.logger.error(`FCM token for device ${deviceId} is missing.`);
         return;
       }
+
+      // The data payload for FCM should be strings only
+      const dataPayload: { [key: string]: string } = {
+        commandId: context.params.commandId,
+        commandType: type,
+        deviceId: deviceId, // Pass deviceId for context
+        ...Object.entries(payload || {}).reduce((acc, [key, value]) => {
+            acc[key] = String(value);
+            return acc;
+        }, {} as { [key: string]: string })
+      };
       
       const fcmPayload = {
-        notification: {
-            title: `New Command: ${type}`,
-            body: `You have received a new remote command.`,
-        },
-        data: {
-          ...payload,
-          commandId: context.params.commandId,
-          commandType: type,
-        },
+        data: dataPayload,
         token: device.fcmToken,
+        android: {
+            priority: "high" as const,
+        }
       };
 
       await admin.messaging().send(fcmPayload);
-      functions.logger.log(`Successfully sent command to device ${deviceId}`);
+      functions.logger.log(`Successfully sent command to device ${deviceId}`, { fcmPayload });
 
       // Update command status to 'sent'
       await snap.ref.update({ status: 'sent' });
 
     } catch (error) {
       functions.logger.error(`Error sending command to device ${deviceId}:`, error);
-      await snap.ref.update({ status: 'failed' });
+      await snap.ref.update({ status: 'failed', failureReason: (error as Error).message });
     }
   });
 

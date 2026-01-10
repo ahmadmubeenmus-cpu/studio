@@ -5,11 +5,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { File, Download, Loader2 } from "lucide-react";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { collection, query, where, getFirestore, orderBy } from "firebase/firestore";
+import { collection, query, where, orderBy } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useFirebase } from "@/app/firebase/client-provider";
 
 export interface DeviceFile {
     id: string;
@@ -36,13 +37,12 @@ function formatBytes(bytes: number, decimals = 2) {
 
 
 export function FileBrowser({ deviceId }: { deviceId: string }) {
-  const firestore = getFirestore();
+  const { firestore } = useFirebase();
   const storage = getStorage();
   const { toast } = useToast();
   const [downloading, setDownloading] = useState<string | null>(null);
 
-  const filesRef = collection(firestore, "files");
-  const filesQuery = query(filesRef, where("deviceId", "==", deviceId), orderBy("uploadedAt", "desc"));
+  const filesQuery = firestore ? query(collection(firestore, "files"), where("deviceId", "==", deviceId), orderBy("uploadedAt", "desc")) : null;
   const [snapshot, loading, error] = useCollection(filesQuery);
   const files = snapshot?.docs.map(doc => ({ id: doc.id, ...doc.data() } as DeviceFile));
 

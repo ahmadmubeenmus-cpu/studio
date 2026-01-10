@@ -10,13 +10,15 @@ import { NotificationList } from "./(components)/notification-list";
 import { ScreenView } from "./(components)/screen-view";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDocument } from "react-firebase-hooks/firestore";
-import { doc, getFirestore } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Device } from "../../(components)/device-list";
+import { useFirebase } from "@/app/firebase/client-provider";
 
 export default function DeviceDetailPage({ params }: { params: { deviceId: string } }) {
-  const firestore = getFirestore();
-  const deviceRef = doc(firestore, "devices", params.deviceId);
+  const { firestore } = useFirebase();
+
+  const deviceRef = firestore ? doc(firestore, "devices", params.deviceId) : null;
   const [snapshot, loading, error] = useDocument(deviceRef);
   const device = snapshot ? { id: snapshot.id, ...snapshot.data() } as Device : undefined;
 

@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Smartphone, ChevronRight } from "lucide-react";
-import { useUser } from "@/firebase";
+import { useUser, useFirebase } from "@/app/firebase/client-provider";
 import { useCollection } from 'react-firebase-hooks/firestore';
-import { collection, query, where, getFirestore } from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -31,10 +31,11 @@ export interface Device {
 
 export function DeviceList() {
     const { user } = useUser();
-    const firestore = getFirestore();
+    const { firestore } = useFirebase();
 
-    const devicesRef = collection(firestore, "devices");
-    const devicesQuery = user ? query(devicesRef, where("uid", "==", user.uid)) : null;
+    const devicesQuery = user && firestore
+      ? query(collection(firestore, "devices"), where("uid", "==", user.uid))
+      : null;
     
     const [snapshot, loading, error] = useCollection(devicesQuery);
     const devices = snapshot?.docs.map(doc => ({ id: doc.id, ...doc.data() } as Device));
@@ -46,6 +47,10 @@ export function DeviceList() {
               <Skeleton className="h-20 w-full" />
           </div>
       )
+  }
+
+  if (error) {
+    return <Card className="p-12 text-center"><CardTitle className="text-destructive">Error loading devices.</CardTitle><CardDescription>{error.message}</CardDescription></Card>
   }
 
   if (!devices || devices.length === 0) {

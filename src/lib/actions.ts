@@ -2,11 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { initializeFirebase } from "@/firebase";
+import { initializeFirebase } from "@/firebase/config";
 
 // Initialize Firebase admin app
-initializeFirebase();
-const db = getFirestore();
+const { firestore: db } = initializeFirebase();
 
 export async function sendDeviceCommand(
   deviceId: string,
@@ -14,6 +13,9 @@ export async function sendDeviceCommand(
   payload: Record<string, any> = {}
 ) {
   try {
+    if (!db) {
+      throw new Error("Firestore is not initialized");
+    }
     await addDoc(collection(db, "commands"), {
       deviceId,
       type: commandType,

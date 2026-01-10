@@ -5,8 +5,9 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { MapPin } from "lucide-react";
 import { useDocumentData } from "react-firebase-hooks/firestore";
-import { doc, getFirestore } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFirebase } from "@/app/firebase/client-provider";
 
 export interface DeviceLocation {
     lat: number;
@@ -21,8 +22,8 @@ export interface DeviceLocation {
 
 export function LocationCard({ deviceId }: { deviceId: string }) {
   const mapImage = PlaceHolderImages.find(img => img.id === 'map-location');
-  const firestore = getFirestore();
-  const locationRef = doc(firestore, "locations", deviceId);
+  const { firestore } = useFirebase();
+  const locationRef = firestore ? doc(firestore, "locations", deviceId) : null;
   const [location, loading, error] = useDocumentData(locationRef);
 
   if (loading) {

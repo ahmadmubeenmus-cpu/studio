@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { collection, query, where, getFirestore, orderBy, limit } from "firebase/firestore";
+import { collection, query, where, orderBy, limit } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFirebase } from "@/app/firebase/client-provider";
 
 export interface DeviceNotification {
   id: string;
@@ -20,9 +21,8 @@ export interface DeviceNotification {
 
 export function NotificationList({ deviceId }: { deviceId: string }) {
 
-  const firestore = getFirestore();
-  const notificationsRef = collection(firestore, "notifications");
-  const notificationsQuery = query(notificationsRef, where("deviceId", "==", deviceId), orderBy("timestamp", "desc"), limit(20));
+  const { firestore } = useFirebase();
+  const notificationsQuery = firestore ? query(collection(firestore, "notifications"), where("deviceId", "==", deviceId), orderBy("timestamp", "desc"), limit(20)) : null;
   const [snapshot, loading, error] = useCollection(notificationsQuery);
   const notifications = snapshot?.docs.map(doc => ({ id: doc.id, ...doc.data() } as DeviceNotification));
   

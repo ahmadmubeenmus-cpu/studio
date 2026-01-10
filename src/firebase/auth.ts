@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
 } from "firebase/auth";
-import { useState, useTransition } from "react";
-import { useFirebase } from "./provider";
+import { useTransition } from "react";
+import { useFirebase } from "@/app/firebase/client-provider";
 
 export function useAuth() {
   const { auth } = useFirebase();

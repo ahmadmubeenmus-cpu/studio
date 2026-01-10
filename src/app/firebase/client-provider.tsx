@@ -1,17 +1,25 @@
 "use client";
 
+import { createContext, useContext, useEffect, ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useUser } from "@/firebase";
-import { FirebaseProvider } from "./provider";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { initializeFirebase } from "./config";
 import { LoadingScreen } from "@/components/shared/loading-screen";
+import { Auth, getAuth } from "firebase/auth";
+import { FirebaseApp } from "firebase/app";
+import { Firestore, getFirestore } from "firebase/firestore";
 
-export function FirebaseClientProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { user, isLoading } = useUser();
+interface FirebaseContextType {
+  app: FirebaseApp;
+  auth: Auth;
+  firestore: Firestore;
+}
+
+const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
+
+export function FirebaseClientProvider({ children }: { children: ReactNode }) {
+  const { app, auth } = initializeFirebase();
+  const [user, isLoading] = useAuthState(auth);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -19,25 +27,38 @@ export function FirebaseClientProvider({
     if (isLoading) return; // Wait until user status is resolved
 
     const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
-    
-    // If user is not logged in and not on an auth page, redirect to login
+
     if (!user && !isAuthPage) {
       router.replace("/login");
-    } 
-    // If user is logged in and on an auth page or the root, redirect to dashboard
-    else if (user && (isAuthPage || pathname === "/")) {
+    } else if (user && (isAuthPage || pathname === "/")) {
       router.replace("/dashboard");
     }
-
   }, [user, isLoading, pathname, router]);
 
-  // To prevent content flashing, we determine if we should show a loading screen.
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
   const shouldShowLoading = isLoading || (!user && !isAuthPage) || (user && (isAuthPage || pathname === "/"));
 
   if (shouldShowLoading) {
-      return <LoadingScreen />;
+    return <LoadingScreen />;
   }
 
-  return <FirebaseProvider>{children}</FirebaseProvider>;
+  return (
+    <FirebaseContext.Provider value={initializeFirebase()}>
+      {children}
+    </FirebaseContext.Provider>
+  );
+}
+
+export const useFirebase = () => {
+  const context = useContext(FirebaseContext);
+  if (context === undefined) {
+    throw new Error("useFirebase must be used within a FirebaseProvider");
+  }
+  return context;
+};
+
+export const useUser = () => {
+    const { auth } = initializeFirebase();
+    const [user, isLoading, error] = useAuthState(auth);
+    return { user, isLoading, error };
 }

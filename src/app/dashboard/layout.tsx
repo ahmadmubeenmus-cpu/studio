@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "@/components/shared/header";
-import { useUser } from "@/firebase";
+import { useUser } from "@/app/firebase/client-provider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";

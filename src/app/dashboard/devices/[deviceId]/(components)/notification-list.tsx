@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection, query, where, orderBy, limit } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useFirebase } from "@/app/firebase/client-provider";
+import { useFirebase } from "@/firebase/provider";
 
 export interface DeviceNotification {
   id: string;

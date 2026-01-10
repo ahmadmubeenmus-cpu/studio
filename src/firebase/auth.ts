@@ -8,7 +8,7 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { useTransition } from "react";
-import { useFirebase } from "@/app/firebase/client-provider";
+import { useFirebase } from "@/firebase/provider";
 
 export function useAuth() {
   const { auth } = useFirebase();

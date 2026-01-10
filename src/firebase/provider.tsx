@@ -15,12 +15,9 @@ interface FirebaseContextType {
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
-export function FirebaseClientProvider({ children }: { children: ReactNode }) {
+export function FirebaseProvider({ children }: { children: ReactNode }) {
   const { app, auth, firestore } = initializeFirebase();
 
-  // This provider's sole responsibility is to provide the Firebase instances
-  // to the rest of the application. The routing logic has been moved to the
-  // relevant layouts to prevent race conditions.
   return (
     <FirebaseContext.Provider value={{ app, auth, firestore }}>
       {children}
@@ -37,7 +34,7 @@ export const useFirebase = () => {
 };
 
 export const useUser = () => {
-    const { auth } = initializeFirebase();
+    const { auth } = useFirebase();
     const [user, isLoading, error] = useAuthState(auth);
     return { user, isLoading, error };
 }

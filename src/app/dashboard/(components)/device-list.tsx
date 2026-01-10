@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Smartphone, ChevronRight } from "lucide-react";
-import { useUser, useFirebase } from "@/app/firebase/client-provider";
+import { useUser, useFirebase } from "@/firebase/provider";
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { collection, query, where } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";

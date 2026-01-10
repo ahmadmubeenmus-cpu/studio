@@ -10,7 +10,7 @@ import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useFirebase } from "@/app/firebase/client-provider";
+import { useFirebase } from "@/firebase/provider";
 
 export interface DeviceFile {
     id: string;

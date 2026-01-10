@@ -13,7 +13,7 @@ import {
 import { LogOut, User as UserIcon } from "lucide-react";
 import { Logo } from "./logo";
 import { useAuth } from "@/firebase/auth";
-import { useUser } from "@/app/firebase/client-provider";
+import { useUser } from "@/firebase/provider";
 
 export default function Header() {
   const { signOut } = useAuth();

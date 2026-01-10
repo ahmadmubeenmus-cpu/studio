@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "@/components/shared/header";
-import { useUser } from "@/app/firebase/client-provider";
+import { useUser } from "@/firebase/provider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { LoadingScreen } from "@/components/shared/loading-screen";

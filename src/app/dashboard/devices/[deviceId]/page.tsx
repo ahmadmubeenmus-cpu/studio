@@ -13,7 +13,7 @@ import { useDocument } from "react-firebase-hooks/firestore";
 import { doc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Device } from "../../(components)/device-list";
-import { useFirebase } from "@/app/firebase/client-provider";
+import { useFirebase } from "@/firebase/provider";
 
 export default function DeviceDetailPage({ params }: { params: { deviceId: string } }) {
   const { firestore } = useFirebase();

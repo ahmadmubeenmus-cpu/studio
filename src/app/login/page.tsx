@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/app/firebase/client-provider';
+import { useUser } from '@/firebase/provider';
 import { AuthFormWrapper } from "@/components/auth/auth-form-wrapper";
 import { LoginForm } from "@/components/auth/login-form";
 import { LoadingScreen } from '@/components/shared/loading-screen';

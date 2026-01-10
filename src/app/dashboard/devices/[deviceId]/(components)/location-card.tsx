@@ -7,7 +7,7 @@ import { MapPin } from "lucide-react";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 import { doc } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useFirebase } from "@/app/firebase/client-provider";
+import { useFirebase } from "@/firebase/provider";
 
 export interface DeviceLocation {
     lat: number;

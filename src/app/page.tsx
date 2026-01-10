@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/app/firebase/client-provider';
+import { useUser } from '@/firebase/provider';
 import { LoadingScreen } from "@/components/shared/loading-screen";
 
 export default function RootPage() {

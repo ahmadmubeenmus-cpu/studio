@@ -7,7 +7,7 @@
     <string name="or_continue_with">Or continue with</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="don_t_have_an_account_sign_up">Don\'t have an account? Sign up</string>
-    <string name="dashboard">Dashboard</string>
+    <string name="dashboard">RemoteDroid</string>
     <string name="log_out">Log Out</string>
     <string name="device_admin_description">Required to remotely lock or wipe your device.</string>
     <string name="notification_channel_id" translatable="false">remote_commands_channel</string>
@@ -21,4 +21,12 @@
     <string name="notification_access_required">Notification Access Required</string>
     <string name="notification_permission_description">To sync notifications to your dashboard, RemoteDroid needs access to read them. We only sync the app name and title, never the content.</string>
     <string name="grant_permission">Grant Permission</string>
+    <string name="screen_stream_notification_channel_id" translatable="false">screen_stream_channel</string>
+    <string name="screen_stream_notification_channel_name">Screen Streaming</string>
+    <string name="screen_stream_notification_channel_description">Indicates that screen streaming is active.</string>
+    <string name="enable_device_admin">Enable Device Admin (for Lock)</string>
+    <string name="device_admin_enabled">Device Admin Enabled</string>
+    <string name="device_admin_disabled">Device Admin is required to use the remote lock feature.</string>
+    <string name="notification_sync_enabled">Notification Sync Enabled</string>
+    <string name="notification_sync_disabled">Enable Notification Sync to see notifications on your dashboard.</string>
 </resources>

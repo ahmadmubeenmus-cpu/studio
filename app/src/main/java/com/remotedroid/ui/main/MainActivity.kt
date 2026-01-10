@@ -1,24 +1,25 @@
 package com.remotedroid.ui.main
 
-import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
+import androidx.core.app.NotificationManagerCompat
+import com.remotedroid.R
 import com.remotedroid.databinding.ActivityMainBinding
 import com.remotedroid.service.DeviceAdmin
-import com.remotedroid.service.PresenceService
 import com.remotedroid.ui.auth.AuthActivity
 import com.remotedroid.ui.permissions.NotificationPermissionActivity
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
-import java.io.FileOutputStream
+import com.google.android.material.snackbar.Snackbar
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -26,17 +27,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
 
-    private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            val fileName = "upload_${System.currentTimeMillis()}"
-            val tempFile = File(cacheDir, fileName)
-            contentResolver.openInputStream(it)?.use { input ->
-                FileOutputStream(tempFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-            viewModel.uploadFile(tempFile)
+            viewModel.uploadFile(it)
         }
+    }
+
+    private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        updateUi()
+    }
+    
+    private val deviceAdminLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        updateUi()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,63 +46,85 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.user.observe(this) { user ->
-            if (user != null) {
-                binding.textViewUserInfo.text = "Logged in as: ${user.email}"
-                viewModel.registerDevice(this)
-                startPresenceService()
-                checkDeviceAdminPermission()
+        viewModel.registrationStatus.observe(this) { device ->
+            binding.progressBar.visibility = View.GONE
+            if (device != null) {
+                binding.textViewDeviceInfo.text = "Device Registered: ${device.deviceName}"
             } else {
-                startActivity(Intent(this, AuthActivity::class.java))
-                finish()
+                 binding.textViewDeviceInfo.text = "Registering device..."
             }
         }
 
+        viewModel.navigateToAuth.observe(this) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+        }
+
+        viewModel.uploadStatus.observe(this) { status ->
+             Snackbar.make(binding.root, status, Snackbar.LENGTH_LONG).show()
+        }
+
         binding.buttonLogout.setOnClickListener {
-            stopPresenceService()
             viewModel.logout()
         }
-        
+
         binding.buttonUploadFile.setOnClickListener {
             filePickerLauncher.launch("*/*")
         }
 
         binding.buttonEnableNotificationSync.setOnClickListener {
             if (!isNotificationServiceEnabled()) {
-                startActivity(Intent(this, NotificationPermissionActivity::class.java))
+                val intent = Intent(this, NotificationPermissionActivity::class.java)
+                notificationPermissionLauncher.launch(intent)
             } else {
-                // Already enabled, maybe show a toast
+                 Snackbar.make(binding.root, "Notification Sync is already enabled.", Snackbar.LENGTH_SHORT).show()
             }
         }
+        
+        binding.buttonEnableDeviceAdmin.setOnClickListener {
+             if (!isDeviceAdminActive()) {
+                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                    putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, ComponentName(this@MainActivity, DeviceAdmin::class.java))
+                    putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, getString(R.string.device_admin_description))
+                }
+                deviceAdminLauncher.launch(intent)
+            } else {
+                Snackbar.make(binding.root, "Device Admin is already enabled.", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        updateUi()
     }
-    
-    private fun startPresenceService() {
-        Intent(this, PresenceService::class.java).also { intent ->
-            startService(intent)
+
+    private fun updateUi() {
+        // Update Notification Sync Button
+        if (isNotificationServiceEnabled()) {
+            binding.buttonEnableNotificationSync.text = getString(R.string.notification_sync_enabled)
+            binding.buttonEnableNotificationSync.isEnabled = false
+        } else {
+            binding.buttonEnableNotificationSync.text = getString(R.string.enable_notification_sync)
+            binding.buttonEnableNotificationSync.isEnabled = true
+        }
+
+        // Update Device Admin Button
+        if (isDeviceAdminActive()) {
+            binding.buttonEnableDeviceAdmin.text = getString(R.string.device_admin_enabled)
+            binding.buttonEnableDeviceAdmin.isEnabled = false
+        } else {
+            binding.buttonEnableDeviceAdmin.text = getString(R.string.enable_device_admin)
+            binding.buttonEnableDeviceAdmin.isEnabled = true
         }
     }
 
-    private fun stopPresenceService() {
-        Intent(this, PresenceService::class.java).also { intent ->
-            stopService(intent)
-        }
-    }
-
-    private fun checkDeviceAdminPermission() {
-        val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-        val deviceAdmin = ComponentName(this, DeviceAdmin::class.java)
-        if (!dpm.isAdminActive(deviceAdmin)) {
-            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, deviceAdmin)
-                putExtra(DevicePolicy.EXTRA_ADD_EXPLANATION, "Required to remotely lock the device.")
-            }
-            startActivity(intent)
-        }
-    }
 
     private fun isNotificationServiceEnabled(): Boolean {
-        val enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        val componentName = ComponentName(this, NotificationSyncService::class.java).flattenToString()
-        return enabledListeners?.contains(componentName) == true
+        return NotificationManagerCompat.getEnabledListenerPackages(this)
+            .contains(packageName)
+    }
+    
+    private fun isDeviceAdminActive(): Boolean {
+        val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val componentName = ComponentName(this, DeviceAdmin::class.java)
+        return dpm.isAdminActive(componentName)
     }
 }

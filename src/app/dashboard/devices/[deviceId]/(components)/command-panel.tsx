@@ -33,7 +33,7 @@ export function CommandPanel({ deviceId }: { deviceId: string }) {
         toast({
           variant: "destructive",
           title: "Command Failed",
-          description: "Could not send the command. Please try again.",
+          description: result.message || "Could not send the command. Please try again.",
         });
       }
       setActiveCommand(null);

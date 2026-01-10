@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import {
-  Card
+  Card,
+  CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Smartphone, ChevronRight } from "lucide-react";
@@ -46,7 +48,7 @@ export function DeviceList() {
       )
   }
 
-  if (devices?.length === 0) {
+  if (!devices || devices.length === 0) {
     return (
       <Card className="flex flex-col items-center justify-center p-12 text-center">
         <Smartphone className="w-16 h-16 mb-4 text-muted-foreground" />

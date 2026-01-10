@@ -1,19 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Smartphone, Battery, Wifi, Milestone } from "lucide-react";
+"use client";
 
-interface Device {
-    id: string;
-    uid: string;
-    deviceName: string;
-    model: string;
-    androidVersion: string;
-    battery: number;
-    isOnline: boolean;
-    fcmToken: string;
-    lastSeen: string;
-    createdAt: string;
-    networkStatus: 'WiFi' | 'Cellular' | 'Offline';
-}
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Smartphone, Battery, Wifi, Milestone, Power } from "lucide-react";
+import { Device } from "@/app/dashboard/(components)/device-list";
 
 
 function getBatteryIcon(level: number) {
@@ -26,7 +15,7 @@ export function DeviceDetailsCard({ device }: { device: Device }) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
           <Smartphone className="w-10 h-10 text-primary" />
           <div>
             <CardTitle className="font-headline">{device.deviceName}</CardTitle>
@@ -59,7 +48,7 @@ export function DeviceDetailsCard({ device }: { device: Device }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-             <Milestone className="w-5 h-5 text-muted-foreground" />
+             <Power className="w-5 h-5 text-muted-foreground" />
             <div>
               <p className="font-medium">Android OS</p>
               <p className="text-muted-foreground">{device.androidVersion}</p>

@@ -2,8 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Bell } from "lucide-react";
-import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection, query, where, getFirestore, orderBy, limit } from "firebase/firestore";
@@ -17,15 +15,10 @@ export interface DeviceNotification {
     seconds: number;
     nanoseconds: number;
   };
-  appIcon: string;
+  appIcon?: string; // It might be base64
 }
 
 export function NotificationList({ deviceId }: { deviceId: string }) {
-
-  const getAppIcon = (iconId: string) => {
-    const img = PlaceHolderImages.find(p => p.id === iconId);
-    return img ? img.imageUrl : undefined;
-  };
 
   const firestore = getFirestore();
   const notificationsRef = collection(firestore, "notifications");
@@ -62,8 +55,8 @@ export function NotificationList({ deviceId }: { deviceId: string }) {
             {notifications.map((notification) => (
               <div key={notification.id} className="flex items-start gap-4">
                 <Avatar className="h-8 w-8 border">
-                    {getAppIcon(notification.appIcon) && 
-                        <AvatarImage src={getAppIcon(notification.appIcon)} alt={notification.appName} data-ai-hint="logo" />
+                    {notification.appIcon && 
+                        <AvatarImage src={`data:image/png;base64,${notification.appIcon}`} alt={notification.appName} data-ai-hint="logo" />
                     }
                     <AvatarFallback>{notification.appName.charAt(0)}</AvatarFallback>
                 </Avatar>

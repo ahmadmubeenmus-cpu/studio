@@ -11,12 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { doc, getFirestore } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Device } from "../../(components)/device-list";
 
 export default function DeviceDetailPage({ params }: { params: { deviceId: string } }) {
   const firestore = getFirestore();
   const deviceRef = doc(firestore, "devices", params.deviceId);
   const [snapshot, loading, error] = useDocument(deviceRef);
-  const device = snapshot ? { id: snapshot.id, ...snapshot.data() } : undefined;
+  const device = snapshot ? { id: snapshot.id, ...snapshot.data() } as Device : undefined;
 
   if (loading) {
     return (
@@ -40,7 +41,7 @@ export default function DeviceDetailPage({ params }: { params: { deviceId: strin
     )
   }
   
-  if (!device) {
+  if (error || !device) {
     notFound();
   }
 
@@ -70,7 +71,7 @@ export default function DeviceDetailPage({ params }: { params: { deviceId: strin
         </div>
 
         <div>
-          <Tabs defaultValue="files">
+          <Tabs defaultValue="files" className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
               <TabsTrigger value="files">File Browser</TabsTrigger>
               <TabsTrigger value="notifications">Notification Sync</TabsTrigger>

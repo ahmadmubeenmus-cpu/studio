@@ -2,6 +2,8 @@
 
 import Header from "@/components/shared/header";
 import { useUser } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardLayout({
@@ -9,7 +11,14 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useUser();
+  const { user, isLoading, error } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [user, isLoading, router]);
 
   if (isLoading || !user) {
     return (
@@ -31,6 +40,11 @@ export default function DashboardLayout({
         </main>
       </div>
     );
+  }
+  
+  if (error) {
+    // Handle error state, maybe show an error message
+    return <div>Error loading user.</div>
   }
 
   return (

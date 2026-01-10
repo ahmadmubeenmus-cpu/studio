@@ -51,6 +51,7 @@ export function LocationCard({ deviceId }: { deviceId: string }) {
             <CardContent className="text-center text-muted-foreground py-12">
                 <MapPin className="w-12 h-12 mx-auto mb-4" />
                 <p>No location data available.</p>
+                <p className="text-sm">Use the `Request Location` command.</p>
             </CardContent>
         </Card>
       )
@@ -71,11 +72,11 @@ export function LocationCard({ deviceId }: { deviceId: string }) {
         {mapImage && (
              <div className="aspect-video relative rounded-lg overflow-hidden border">
                 <Image 
-                    src={mapImage.imageUrl} 
+                    src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+${"ff9800"}(${location.lng},${location.lat})/${location.lng},${location.lat},13,0/600x400?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`} 
                     alt="Map showing device location" 
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
+                    width={600}
+                    height={400}
+                    className="object-cover w-full"
                     data-ai-hint={mapImage.imageHint}
                 />
              </div>

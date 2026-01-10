@@ -4,11 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/firebase/auth";
+import { useToast } from "@/hooks/use-toast";
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -16,7 +18,8 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-  const { login, googleLogin, loading } = useAuth();
+  const { signInWithEmail, signInWithGoogle, isPending } = useAuth();
+  const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -27,7 +30,27 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await login(values.email, values.password);
+    try {
+        await signInWithEmail(values.email, values.password);
+    } catch(e: any) {
+        toast({
+            variant: "destructive",
+            title: "Authentication failed",
+            description: e.message
+        });
+    }
+  }
+
+  async function handleGoogleLogin() {
+    try {
+        await signInWithGoogle();
+    } catch(e: any) {
+        toast({
+            variant: "destructive",
+            title: "Authentication failed",
+            description: e.message
+        });
+    }
   }
 
   return (
@@ -59,8 +82,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={loading} style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-          {loading ? <Loader2 className="animate-spin" /> : "Log In"}
+        <Button type="submit" className="w-full" disabled={isPending} style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+          {isPending ? <Loader2 className="animate-spin" /> : "Log In"}
         </Button>
 
         <div className="relative">
@@ -72,8 +95,8 @@ export function LoginForm() {
             </div>
         </div>
 
-        <Button variant="outline" type="button" className="w-full" onClick={googleLogin} disabled={loading}>
-            {loading ? <Loader2 className="animate-spin" /> : (
+        <Button variant="outline" type="button" className="w-full" onClick={handleGoogleLogin} disabled={isPending}>
+            {isPending ? <Loader2 className="animate-spin" /> : (
             <>
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.38 6.52C13.56 13.46 18.28 9.5 24 9.5z"/>

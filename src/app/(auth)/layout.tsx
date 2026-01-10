@@ -1,21 +1,21 @@
 "use client";
 
-import { useAuth } from "@/contexts/auth-context";
+import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!isLoading && user) {
       router.replace("/dashboard");
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
-  if (loading || user) {
+  if (isLoading || user) {
     return (
        <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">

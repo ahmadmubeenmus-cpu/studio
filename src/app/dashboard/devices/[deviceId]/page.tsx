@@ -1,4 +1,5 @@
-import { getMockDevice, getMockLocation, getMockFiles, getMockNotifications } from "@/lib/mock-data";
+"use client";
+
 import { notFound } from "next/navigation";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { DeviceDetailsCard } from "./(components)/device-details-card";
@@ -7,17 +8,41 @@ import { LocationCard } from "./(components)/location-card";
 import { FileBrowser } from "./(components)/file-browser";
 import { NotificationList } from "./(components)/notification-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDocument } from "react-firebase-hooks/firestore";
+import { doc, getFirestore } from "firebase/firestore";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function DeviceDetailPage({ params }: { params: { deviceId: string } }) {
-  const device = await getMockDevice(params.deviceId);
+export default function DeviceDetailPage({ params }: { params: { deviceId: string } }) {
+  const firestore = getFirestore();
+  const deviceRef = doc(firestore, "devices", params.deviceId);
+  const [snapshot, loading, error] = useDocument(deviceRef);
+  const device = snapshot ? { id: snapshot.id, ...snapshot.data() } : undefined;
+
+  if (loading) {
+    return (
+        <div className="container py-8">
+            <Skeleton className="h-6 w-1/2 mb-6" />
+            <div className="grid gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-8">
+                        <Skeleton className="h-48 w-full" />
+                        <Skeleton className="h-48 w-full" />
+                    </div>
+                    <div className="lg:col-span-1">
+                        <Skeleton className="h-64 w-full" />
+                    </div>
+                </div>
+                <div>
+                    <Skeleton className="h-64 w-full" />
+                </div>
+            </div>
+        </div>
+    )
+  }
   
   if (!device) {
     notFound();
   }
-
-  const location = await getMockLocation(params.deviceId);
-  const files = await getMockFiles(params.deviceId);
-  const notifications = await getMockNotifications(params.deviceId);
 
   return (
     <div className="container py-8">
@@ -40,7 +65,7 @@ export default async function DeviceDetailPage({ params }: { params: { deviceId:
                 <CommandPanel deviceId={device.id} />
             </div>
             <div className="lg:col-span-1">
-                {location && <LocationCard location={location} />}
+                <LocationCard deviceId={device.id} />
             </div>
         </div>
 
@@ -51,10 +76,10 @@ export default async function DeviceDetailPage({ params }: { params: { deviceId:
               <TabsTrigger value="notifications">Notification Sync</TabsTrigger>
             </TabsList>
             <TabsContent value="files">
-              <FileBrowser files={files} />
+              <FileBrowser deviceId={device.id} />
             </TabsContent>
             <TabsContent value="notifications">
-              <NotificationList notifications={notifications} />
+              <NotificationList deviceId={device.id} />
             </TabsContent>
           </Tabs>
         </div>

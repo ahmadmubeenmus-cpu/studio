@@ -1,6 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { type Device } from "@/lib/mock-data";
 import { Smartphone, Battery, Wifi, Milestone } from "lucide-react";
+
+interface Device {
+    id: string;
+    uid: string;
+    deviceName: string;
+    model: string;
+    androidVersion: string;
+    battery: number;
+    isOnline: boolean;
+    fcmToken: string;
+    lastSeen: string;
+    createdAt: string;
+    networkStatus: 'WiFi' | 'Cellular' | 'Offline';
+}
+
 
 function getBatteryIcon(level: number) {
   if (level > 80) return <Battery className="w-5 h-5 text-green-500" />;

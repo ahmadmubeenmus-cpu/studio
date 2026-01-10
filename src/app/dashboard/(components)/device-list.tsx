@@ -1,17 +1,52 @@
+"use client";
+
 import Link from "next/link";
-import { type Device } from "@/lib/mock-data";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
+  Card
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Smartphone, ChevronRight } from "lucide-react";
+import { useUser } from "@/firebase";
+import { useCollection } from 'react-firebase-hooks/firestore';
+import { collection, query, where, getFirestore } from "firebase/firestore";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function DeviceList({ devices }: { devices: Device[] }) {
-  if (devices.length === 0) {
+
+export interface Device {
+    id: string;
+    uid: string;
+    deviceName: string;
+    model: string;
+    androidVersion: string;
+    battery: number;
+    isOnline: boolean;
+    fcmToken: string;
+    lastSeen: string;
+    createdAt: string;
+    networkStatus: 'WiFi' | 'Cellular' | 'Offline';
+}
+
+
+export function DeviceList() {
+    const { user } = useUser();
+    const firestore = getFirestore();
+
+    const devicesRef = collection(firestore, "devices");
+    const devicesQuery = user ? query(devicesRef, where("uid", "==", user.uid)) : null;
+    
+    const [snapshot, loading, error] = useCollection(devicesQuery);
+    const devices = snapshot?.docs.map(doc => ({ id: doc.id, ...doc.data() } as Device));
+
+  if (loading) {
+      return (
+          <div className="grid gap-4">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+          </div>
+      )
+  }
+
+  if (devices?.length === 0) {
     return (
       <Card className="flex flex-col items-center justify-center p-12 text-center">
         <Smartphone className="w-16 h-16 mb-4 text-muted-foreground" />
@@ -25,7 +60,7 @@ export function DeviceList({ devices }: { devices: Device[] }) {
   
   return (
     <div className="grid gap-4">
-      {devices.map((device) => (
+      {devices && devices.map((device) => (
         <Card key={device.id} className="hover:border-primary/50 transition-colors">
           <Link href={`/dashboard/devices/${device.id}`} className="block">
             <div className="flex items-center p-4">
@@ -46,7 +81,7 @@ export function DeviceList({ devices }: { devices: Device[] }) {
               <div className="ml-auto flex items-center gap-4">
                   <div className="text-right hidden sm:block">
                       <p className="text-sm font-medium">{device.isOnline ? 'Online' : 'Offline'}</p>
-                      <p className="text-xs text-muted-foreground">Last seen: {new Date(device.lastSeen).toLocaleTimeString()}</p>
+                      {device.lastSeen && <p className="text-xs text-muted-foreground">Last seen: {new Date(device.lastSeen).toLocaleTimeString()}</p>}
                   </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>

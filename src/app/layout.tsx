@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/contexts/auth-context";
+import { FirebaseProvider } from "@/firebase/provider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -23,10 +23,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <AuthProvider>
+        <FirebaseProvider>
           {children}
           <Toaster />
-        </AuthProvider>
+        </FirebaseProvider>
       </body>
     </html>
   );

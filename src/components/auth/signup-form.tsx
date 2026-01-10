@@ -4,11 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/firebase/auth";
+import { useToast } from "@/hooks/use-toast";
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -16,7 +18,8 @@ const formSchema = z.object({
 });
 
 export function SignUpForm() {
-  const { signup, loading } = useAuth();
+  const { createUserWithEmail, isPending } = useAuth();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -27,7 +30,15 @@ export function SignUpForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await signup(values.email, values.password);
+    try {
+        await createUserWithEmail(values.email, values.password);
+    } catch(e: any) {
+        toast({
+            variant: "destructive",
+            title: "Sign up failed",
+            description: e.message
+        });
+    }
   }
 
   return (
@@ -59,8 +70,8 @@ export function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={loading} style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-          {loading ? <Loader2 className="animate-spin" /> : "Create Account"}
+        <Button type="submit" className="w-full" disabled={isPending} style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+          {isPending ? <Loader2 className="animate-spin" /> : "Create Account"}
         </Button>
         <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}

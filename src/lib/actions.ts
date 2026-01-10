@@ -1,29 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { initializeFirebase } from "@/firebase";
 
-// Mock function to simulate a delay
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+// Initialize Firebase admin app
+initializeFirebase();
+const db = getFirestore();
 
 export async function sendDeviceCommand(
   deviceId: string,
-  commandType: string
+  commandType: string,
+  payload: Record<string, any> = {}
 ) {
-  await sleep(1000); // Simulate network delay
+  try {
+    await addDoc(collection(db, "commands"), {
+      deviceId,
+      type: commandType,
+      status: "pending",
+      createdAt: serverTimestamp(),
+      payload,
+    });
 
-  console.log(`Command '${commandType}' sent to device '${deviceId}'`);
-
-  // In a real app, this would interact with Firebase to create a command document.
-  // For example:
-  // await db.collection('commands').add({
-  //   deviceId,
-  //   type: commandType,
-  //   status: 'pending',
-  //   createdAt: new Date(),
-  //   payload: {},
-  // });
-
-  revalidatePath(`/dashboard/devices/${deviceId}`);
-
-  return { success: true, message: `Command '${commandType}' sent successfully.` };
+    revalidatePath(`/dashboard/devices/${deviceId}`);
+    return { success: true, message: `Command '${commandType}' sent successfully.` };
+  } catch (error: any) {
+    console.error("Error sending command:", error);
+    return { success: false, message: error.message || `Failed to send command '${commandType}'.` };
+  }
 }

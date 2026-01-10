@@ -1,0 +1,48 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Devices: Users can only read/write their own devices.
+    match /devices/{deviceId} {
+      allow read, create, update: if isSignedIn() && isOwner(resource.data.uid);
+      allow delete: if false; // Deletion not allowed from client
+    }
+
+    // Files: Users can only read/write files associated with their devices.
+    // This assumes a 'devices' collection exists to verify ownership.
+    match /files/{fileId} {
+      allow read, create: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)).data.uid == request.auth.uid;
+      allow update, delete: if false; // Updates and deletes are restricted
+    }
+
+    // Locations: Users can only read/write locations for their own devices.
+    match /locations/{deviceId} {
+       allow read, write: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(deviceId)) && get(/databases/$(database)/documents/devices/$(deviceId)).data.uid == request.auth.uid;
+    }
+
+    // Notifications: Users can only read/write notifications for their own devices.
+    match /notifications/{notificationId} {
+      allow read, create: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)).data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+    
+    // Commands: Users can only create commands for their own devices.
+    match /commands/{commandId} {
+      allow create: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(request.resource.data.deviceId)).data.uid == request.auth.uid;
+      // Reading/updating status might be handled by a Cloud Function.
+      allow read, update: if isSignedIn() && exists(/databases/$(database)/documents/devices/$(resource.data.deviceId)) && get(/databases/$(database)/documents/devices/$(resource.data.deviceId)).data.uid == request.auth.uid;
+      allow delete: if false;
+    }
+  }
+}

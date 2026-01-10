@@ -1,0 +1,209 @@
+
+{
+  "entities": {
+    "Device": {
+      "title": "Device",
+      "description": "Represents a user's registered Android device.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The UID of the user who owns the device."
+        },
+        "deviceName": {
+          "type": "string",
+          "description": "The name of the device."
+        },
+        "model": {
+          "type": "string",
+          "description": "The device model."
+        },
+        "androidVersion": {
+          "type": "string",
+          "description": "The Android version of the device."
+        },
+        "battery": {
+          "type": "number",
+          "description": "The current battery level of the device."
+        },
+        "isOnline": {
+          "type": "boolean",
+          "description": "The online status of the device."
+        },
+        "fcmToken": {
+          "type": "string",
+          "description": "The FCM token for sending push notifications."
+        },
+        "lastSeen": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The last time the device was seen online."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the device was registered."
+        },
+        "networkStatus": {
+          "type": "string",
+          "enum": ["WiFi", "Cellular", "Offline"],
+          "description": "The network status of the device."
+        }
+      },
+      "required": ["uid", "deviceName", "model", "androidVersion", "fcmToken"]
+    },
+    "DeviceFile": {
+      "title": "DeviceFile",
+      "description": "Represents a file transferred from a device.",
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "string",
+          "description": "The ID of the device this file belongs to."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the file."
+        },
+        "size": {
+          "type": "number",
+          "description": "The size of the file in bytes."
+        },
+        "type": {
+          "type": "string",
+          "description": "The MIME type of the file."
+        },
+        "storagePath": {
+          "type": "string",
+          "description": "The path to the file in Firebase Storage."
+        },
+        "uploadedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the file was uploaded."
+        }
+      },
+      "required": ["deviceId", "name", "size", "type", "storagePath", "uploadedAt"]
+    },
+    "DeviceLocation": {
+      "title": "DeviceLocation",
+      "description": "Represents the location of a device.",
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "description": "The latitude of the device."
+        },
+        "lng": {
+          "type": "number",
+          "description": "The longitude of the device."
+        },
+        "accuracy": {
+          "type": "number",
+          "description": "The accuracy of the location in meters."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the location was recorded."
+        }
+      },
+      "required": ["lat", "lng", "timestamp"]
+    },
+    "DeviceNotification": {
+        "title": "DeviceNotification",
+        "description": "Represents a notification synced from a device.",
+        "type": "object",
+        "properties": {
+            "deviceId": {
+                "type": "string",
+                "description": "The ID of the device this notification is from."
+            },
+            "appName": {
+                "type": "string",
+                "description": "The name of the app that sent the notification."
+            },
+            "title": {
+                "type": "string",
+                "description": "The title of the notification."
+            },
+            "appIcon": {
+                "type": "string",
+                "description": "An identifier for the app icon."
+            },
+            "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The timestamp when the notification was received."
+            }
+        },
+        "required": ["deviceId", "appName", "title", "timestamp"]
+    },
+    "DeviceCommand": {
+        "title": "DeviceCommand",
+        "description": "Represents a command to be sent to a device.",
+        "type": "object",
+        "properties": {
+            "deviceId": {
+                "type": "string",
+                "description": "The ID of the target device."
+            },
+            "type": {
+                "type": "string",
+                "enum": ["ring", "lock", "notify", "refresh", "location"],
+                "description": "The type of command to execute."
+            },
+            "status": {
+                "type": "string",
+                "enum": ["pending", "sent", "completed", "failed"],
+                "description": "The status of the command."
+            },
+            "payload": {
+                "type": "object",
+                "description": "Additional data for the command."
+            },
+            "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The timestamp when the command was created."
+            }
+        },
+        "required": ["deviceId", "type", "status", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["Email/Password", "Google"]
+  },
+  "firestore": {
+    "/devices/{deviceId}": {
+        "schema": {
+            "$ref": "#/backend/entities/Device"
+        },
+        "description": "Stores information about registered devices."
+    },
+    "/files/{fileId}": {
+        "schema": {
+            "$ref": "#/backend/entities/DeviceFile"
+        },
+        "description": "Stores metadata about files uploaded from devices."
+    },
+    "/locations/{deviceId}": {
+        "schema": {
+            "$ref": "#/backend/entities/DeviceLocation"
+        },
+        "description": "Stores the last known location of a device."
+    },
+    "/notifications/{notificationId}": {
+        "schema": {
+            "$ref": "#/backend/entities/DeviceNotification"
+        },
+        "description": "Stores synced notifications from devices."
+    },
+    "/commands/{commandId}": {
+        "schema": {
+            "$ref": "#/backend/entities/DeviceCommand"
+        },
+        "description": "Stores commands to be executed on devices."
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { Server } from "socket.io";
 
 admin.initializeApp();
 
@@ -21,6 +22,14 @@ export const onCommandCreate = functions.firestore
     const { deviceId, type, payload } = command;
 
     functions.logger.log(`New command '${type}' for device ${deviceId}`);
+
+    // Do not send FCM for session management commands
+    if (type === 'start-stream' || type === 'stop-stream') {
+        functions.logger.log(`Session command ${type} received, handled by client directly.`);
+        // Optionally update the command status if needed
+        await snap.ref.update({ status: 'acknowledged' });
+        return;
+    }
 
     try {
       const deviceDoc = await db.collection("devices").doc(deviceId).get();
@@ -163,4 +172,50 @@ export const cleanupInactiveScreenSessions = functions.pubsub.schedule('every 60
     } catch (error) {
         functions.logger.error("Error cleaning up inactive screen sessions:", error);
     }
+});
+
+
+const io = new Server({
+    cors: {
+      origin: "*", // Be more restrictive in production
+      methods: ["GET", "POST"]
+    }
+});
+
+const signaling = io.of("/signaling");
+
+signaling.on('connection', (socket) => {
+    functions.logger.log('Socket connected:', socket.id);
+
+    socket.on('join', (room) => {
+        socket.join(room);
+        functions.logger.log(`Socket ${socket.id} joined room ${room}`);
+        socket.to(room).emit('peer-joined', socket.id);
+    });
+
+    socket.on('offer', ({ sdp, room }) => {
+        functions.logger.log(`Offer from ${socket.id} for room ${room}`);
+        socket.to(room).emit('offer', { sdp, from: socket.id });
+    });
+
+    socket.on('answer', ({ sdp, room }) => {
+        functions.logger.log(`Answer from ${socket.id} for room ${room}`);
+        socket.to(room).emit('answer', { sdp, from: socket.id });
+    });
+
+    socket.on('ice-candidate', ({ candidate, room }) => {
+        socket.to(room).emit('ice-candidate', { candidate, from: socket.id });
+    });
+
+    socket.on('disconnect', () => {
+        functions.logger.log('Socket disconnected:', socket.id);
+    });
+});
+
+export const signalingServer = functions.https.onRequest((req, res) => {
+    // This function acts as a wrapper for the socket.io server
+    // NOTE: This setup is basic. For production, you might need a more robust solution
+    // like running socket.io on a separate App Engine or Cloud Run instance.
+    (io as any)._attach(res.socket.server);
+    res.send("Socket.io server is running.");
 });

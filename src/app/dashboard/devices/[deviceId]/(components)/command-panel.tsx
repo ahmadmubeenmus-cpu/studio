@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BellRing, Lock, MessageSquare, RefreshCw, MapPin, Loader2 } from "lucide-react";
+import { BellRing, Lock, MessageSquare, RefreshCw, MapPin, Loader2, ScreenShare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { sendDeviceCommand } from "@/lib/actions";
 
@@ -13,6 +13,7 @@ const commands = [
   { id: "notify", label: "Show Notification", icon: MessageSquare },
   { id: "refresh", label: "Refresh Info", icon: RefreshCw },
   { id: "location", label: "Request Location", icon: MapPin },
+  { id: "start-stream", label: "Screen Share", icon: ScreenShare }
 ];
 
 export function CommandPanel({ deviceId }: { deviceId: string }) {

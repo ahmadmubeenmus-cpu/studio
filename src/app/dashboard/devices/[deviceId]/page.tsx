@@ -7,6 +7,7 @@ import { CommandPanel } from "./(components)/command-panel";
 import { LocationCard } from "./(components)/location-card";
 import { FileBrowser } from "./(components)/file-browser";
 import { NotificationList } from "./(components)/notification-list";
+import { ScreenView } from "./(components)/screen-view";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { doc, getFirestore } from "firebase/firestore";
@@ -60,6 +61,7 @@ export default function DeviceDetailPage({ params }: { params: { deviceId: strin
       </Breadcrumb>
       
       <div className="grid gap-8">
+        <ScreenView deviceId={device.id} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
                 <DeviceDetailsCard device={device} />

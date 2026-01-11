@@ -1,9 +1,9 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.google.gms.google-services'
-    id 'com.google.dagger.hilt.android'
-    id 'kotlin-kapt'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -36,13 +36,9 @@ android {
     buildFeatures {
         viewBinding true
     }
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-    }
 }
 
 dependencies {
-
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
@@ -79,9 +75,9 @@ dependencies {
     implementation libs.androidx.work.runtime.ktx
     implementation libs.hilt.work
     kapt libs.hilt.work.compiler
-
+    
     // WebRTC
-    implementation libs.webrtc
+    implementation 'org.webrtc:webrtc-android:1.0.0'
 }
 
 kapt {

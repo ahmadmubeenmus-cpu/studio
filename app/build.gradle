@@ -1,9 +1,9 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.google.gms.google.services)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.kapt)
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -39,20 +39,14 @@ android {
 }
 
 dependencies {
+
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
     implementation libs.androidx.constraintlayout
-    testImplementation libs.junit
-    androidTestImplementation libs.androidx.junit
-    androidTestImplementation libs.androidx.espresso.core
-
-    // Lifecycle and ViewModel
     implementation libs.androidx.lifecycle.livedata.ktx
     implementation libs.androidx.lifecycle.viewmodel.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
-
-    // Navigation
     implementation libs.androidx.navigation.fragment.ktx
     implementation libs.androidx.navigation.ui.ktx
 
@@ -77,7 +71,12 @@ dependencies {
     kapt libs.hilt.work.compiler
     
     // WebRTC
-    implementation 'org.webrtc:webrtc-android:1.0.0'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
+
+
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }
 
 kapt {
